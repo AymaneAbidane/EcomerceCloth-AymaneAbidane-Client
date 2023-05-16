@@ -2,28 +2,33 @@ import React, { useEffect, useState } from 'react'
 import "./Featuredproducts.scss"
 import Card from '../Card/Card';
 import axios from "axios"
+import useFetch from '../../hooks/usefetch';
+import { makeRequest } from '../../hooks/makerequest';
 
 
 function Featuredproducts({type}) {
-    
+      
+      // const {data,loading}=useFetch(`/products?populate=*&[filters][type][$eq]=${type}`);
 
       const [data,setData]=useState([])
-
+      const [loading, setLoading] = useState(false);
+      const [error, setError] = useState(false);
       useEffect(()=>{
             const fetchData=async()=>{
                 try{
-                   const res=await axios.get("http://localhost:1337/api/products",
-                   {
-                     headers:
-                       {Authorization:"bearer9fb225f677d409d4d959512699bc554c859fefe660b377880a37d4ac083ae0f7e9707f16efcad058ff93d1e80557498d36ecbc1dc353244b5c02cad6d13cf74a7d4c2e209dc00f173be8ab7e4e098faa7d1ab7d921200e70d3698c015355ecc7610bb59927294910a463ec95a1e7a39950b9dfbdd398d7f4983960dd5b2e2af1" ,},
-                   });
+                  setLoading(true);
+                   const res=await makeRequest.get(`/products?populate=*&[filters][type][$eq]=${type}`)
                    setData(res.data.data);
                 }catch(err){
-                    console.log(err);
+                  setError(true);
                 }
+
+                setLoading(false);
             };
             fetchData();
       },[])
+
+      // console.log(import.meta.env);
   return (
     <div className='featuredproducts'>
         <div className="top">
@@ -32,7 +37,9 @@ function Featuredproducts({type}) {
 
         </div>
         <div className="bottom">
-             {data.map(item=>(
+             { loading
+               ? "loading" 
+               : data?.map(item=>(
                 <Card item={item} key={item.id}/>
              ))}
         </div>
